@@ -1,0 +1,33 @@
+name: Release Addon
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Package Addon
+        run: |
+          zip -r ${{ github.event.repository.name }}.zip . -x "*.git*"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: "Release ${{ github.ref_name }} of ${{ github.event.repository.name }}"
+          files: ${{ github.event.repository.name }}.zip
+      - name: Upload to CurseForge
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: |
+          curl -X POST \
+            -H "X-Api-Token: $CURSEFORGE_TOKEN" \
+            -F "file=@${{ github.event.repository.name }}.zip" \
+            -F "metadata={\"changelog\": \"Release ${{ github.ref_name }}\", \"gameVersions\": [\"11404\"], \"releaseType\": \"release\"}" \
+            https://wow.curseforge.com/api/projects/${{ secrets.CURSEFORGE_PROJECT_ID }}/upload-file

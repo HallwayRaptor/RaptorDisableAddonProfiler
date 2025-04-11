@@ -1,0 +1,6 @@
+## Interface: 110100
+## Title: Raptor Disable Blizzard Addon Profiler
+## Notes: Disables Blizzard's addon profiler on login
+## Version: 1
+
+RaptorDisableAddonProfiler.lua
